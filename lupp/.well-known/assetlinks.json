@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.prokator.lupp",
+        "sha256_cert_fingerprints": ["AF:A3:2F:43:FB:2B:DA:C7:08:4E:92:88:65:B7:57:96:36:85:38:A3:22:AD:01:FE:9F:92:EC:05:D0:91:8B:AE"]
+      }
+    }]
