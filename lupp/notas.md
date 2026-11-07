@@ -1,0 +1,1 @@
+kWemNirMTkGm9jpE contraseña del supabase

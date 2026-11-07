@@ -1,0 +1,923 @@
+/* =============================================================
+   LUPP · vivo.css
+   Diseño vivo y animaciones. Lo carga app.js solo.
+   Todo anima con transform / opacity (60 fps en el celular).
+   ============================================================= */
+
+:root {
+  --vino: #8B1E2D;
+  --oro: #D4AF37;
+  --verde-v: #22C55E;
+  --rojo-v: #EF4444;
+  --curva: cubic-bezier(0.16, 1, 0.3, 1);      /* frena suave, elegante */
+  --curva-rebote: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ---------- Fondo con luz que respira ---------- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -25%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 30% at 20% 15%, rgba(139, 30, 45, 0.28), transparent 70%),
+    radial-gradient(32% 26% at 85% 30%, rgba(212, 175, 55, 0.12), transparent 70%),
+    radial-gradient(40% 32% at 50% 95%, rgba(139, 30, 45, 0.16), transparent 70%);
+  animation: lupp-deriva 26s ease-in-out infinite alternate;
+  will-change: transform;
+}
+[data-tema="claro"] body::before { opacity: 0.45; }
+
+@keyframes lupp-deriva {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(3%, -2%, 0) scale(1.06); }
+  100% { transform: translate3d(-3%, 2%, 0) scale(1); }
+}
+
+/* ---------- Entrada de la pantalla (al cambiar de pestaña) ---------- */
+.pantalla.entrar > * {
+  animation: lupp-subir 0.6s var(--curva) both;
+}
+.pantalla.entrar > *:nth-child(2)  { animation-delay: 0.04s; }
+.pantalla.entrar > *:nth-child(3)  { animation-delay: 0.08s; }
+.pantalla.entrar > *:nth-child(4)  { animation-delay: 0.12s; }
+.pantalla.entrar > *:nth-child(5)  { animation-delay: 0.16s; }
+.pantalla.entrar > *:nth-child(6)  { animation-delay: 0.20s; }
+.pantalla.entrar > *:nth-child(7)  { animation-delay: 0.24s; }
+.pantalla.entrar > *:nth-child(8)  { animation-delay: 0.28s; }
+.pantalla.entrar > *:nth-child(9)  { animation-delay: 0.32s; }
+.pantalla.entrar > *:nth-child(n+10) { animation-delay: 0.36s; }
+
+@keyframes lupp-subir {
+  from { opacity: 0; translate: 0 18px; }
+  to   { opacity: 1; translate: 0 0; }
+}
+
+/* Las cuentas entran una por una desde la derecha */
+.pantalla.entrar .cuentas-scroll > * { animation: lupp-deslizar 0.6s var(--curva) both; }
+.pantalla.entrar .cuentas-scroll > *:nth-child(1) { animation-delay: 0.20s; }
+.pantalla.entrar .cuentas-scroll > *:nth-child(2) { animation-delay: 0.26s; }
+.pantalla.entrar .cuentas-scroll > *:nth-child(3) { animation-delay: 0.32s; }
+.pantalla.entrar .cuentas-scroll > *:nth-child(4) { animation-delay: 0.38s; }
+.pantalla.entrar .cuentas-scroll > *:nth-child(n+5) { animation-delay: 0.44s; }
+
+@keyframes lupp-deslizar {
+  from { opacity: 0; translate: 24px 0; }
+  to   { opacity: 1; translate: 0 0; }
+}
+
+/* ---------- Tarjetas con vida ---------- */
+.card {
+  transition: translate 0.35s var(--curva), box-shadow 0.35s var(--curva), border-color 0.35s;
+}
+@media (hover: hover) {
+  .card.cuenta:hover,
+  .card.metrica:hover { translate: 0 -3px; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35); }
+}
+
+/* Toque: todo botón se hunde un poquito */
+button:not(.fab) { transition: scale 0.18s var(--curva), opacity 0.2s, background-color 0.2s; }
+button:not(.fab):active { scale: 0.96; }
+
+/* Línea de color arriba de "Gané" y "Gasté" */
+.card.metrica { position: relative; overflow: hidden; }
+.card.metrica::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 2px;
+  opacity: 0.85;
+  background: linear-gradient(90deg, transparent, var(--oro), transparent);
+}
+.card.metrica:has(.verde)::before { background: linear-gradient(90deg, transparent, var(--verde-v), transparent); }
+.card.metrica:has(.rojo)::before  { background: linear-gradient(90deg, transparent, var(--rojo-v), transparent); }
+
+/* "Llevo en total": borde dorado con un brillo que pasa cada tanto */
+.card.saldo {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.25), 0 18px 40px -18px rgba(212, 175, 55, 0.35);
+  background-image: radial-gradient(120% 140% at 0% 0%, rgba(212, 175, 55, 0.10), transparent 55%);
+}
+.card.saldo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgba(212, 175, 55, 0.16) 50%, transparent 65%);
+  translate: -110% 0;
+  animation: lupp-brillo-pasa 7s ease-in-out 1.2s infinite;
+}
+@keyframes lupp-brillo-pasa {
+  0%   { translate: -110% 0; }
+  22%  { translate: 110% 0; }
+  100% { translate: 110% 0; }
+}
+.card.saldo > b {
+  background: linear-gradient(90deg, #F3D77A, var(--oro) 45%, #B8901F);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+[data-tema="claro"] .card.saldo > b { background: none; color: #8C6D1F; }
+
+/* "Ahora": punto que late */
+.card.ahora { position: relative; }
+.card.ahora::after {
+  content: '';
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--oro);
+  box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.6);
+  animation: lupp-latido 2.4s ease-out infinite;
+}
+@keyframes lupp-latido {
+  0%   { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.55); }
+  70%  { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}
+
+/* Tarjetas de cuenta teñidas con el color de su banco */
+.card.cuenta {
+  background-image: linear-gradient(155deg, color-mix(in srgb, var(--c, #555) 24%, transparent), transparent 62%);
+}
+.card.cuenta .logo-banco {
+  margin-bottom: 6px;
+  transition: scale 0.35s var(--curva-rebote);
+}
+@media (hover: hover) {
+  .card.cuenta:hover .logo-banco { scale: 1.1; }
+}
+
+/* Botón + con un resplandor suave que respira */
+.fab { animation: lupp-respira 3.2s ease-in-out infinite; }
+@keyframes lupp-respira {
+  0%, 100% { box-shadow: 0 6px 18px rgba(139, 30, 45, 0.45), 0 0 0 0 rgba(139, 30, 45, 0.35); }
+  50%      { box-shadow: 0 6px 22px rgba(139, 30, 45, 0.6), 0 0 0 8px rgba(139, 30, 45, 0); }
+}
+
+/* Barra de abajo tipo vidrio + pestaña activa que salta */
+.nav {
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+}
+.nav button.activo i { animation: lupp-salto 0.5s var(--curva-rebote); }
+@keyframes lupp-salto {
+  0%   { scale: 0.7; }
+  100% { scale: 1; }
+}
+
+/* Filas de listas */
+.fila { transition: background-color 0.2s; }
+@media (hover: hover) {
+  .fila:hover { background-color: rgba(255, 255, 255, 0.03); }
+}
+
+/* ---------- Números que cambian: brillo ---------- */
+.num { font-variant-numeric: tabular-nums; display: inline-block; }
+.num.sube { animation: lupp-num-sube 1.3s var(--curva); }
+.num.baja { animation: lupp-num-baja 1.3s var(--curva); }
+@keyframes lupp-num-sube {
+  0%   { text-shadow: 0 0 0 transparent; scale: 1; }
+  20%  { text-shadow: 0 0 18px rgba(34, 197, 94, 0.8); scale: 1.06; }
+  100% { text-shadow: 0 0 0 transparent; scale: 1; }
+}
+@keyframes lupp-num-baja {
+  0%   { text-shadow: 0 0 0 transparent; scale: 1; }
+  20%  { text-shadow: 0 0 18px rgba(239, 68, 68, 0.8); scale: 0.97; }
+  100% { text-shadow: 0 0 0 transparent; scale: 1; }
+}
+
+/* ---------- Hoja inferior: sube y baja suave ---------- */
+#sheet-root .overlay { animation: lupp-fundido 0.35s ease both; }
+#sheet-root .overlay.quieto { animation: none; }
+#sheet-root .sheet { animation: lupp-hoja-sube 0.5s var(--curva) both; }
+#sheet-root.saliendo { pointer-events: none; }
+#sheet-root.saliendo .overlay { animation: lupp-fundido-sale 0.26s ease both; }
+#sheet-root.saliendo .sheet   { animation: lupp-hoja-baja 0.26s cubic-bezier(0.4, 0, 1, 1) both; }
+
+@keyframes lupp-fundido      { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lupp-fundido-sale { from { opacity: 1; } to { opacity: 0; } }
+@keyframes lupp-hoja-sube    { from { translate: 0 100%; } to { translate: 0 0; } }
+@keyframes lupp-hoja-baja    { from { translate: 0 0; opacity: 1; } to { translate: 0 60%; opacity: 0; } }
+
+/* Lo de adentro de la hoja aparece en cascada */
+.sheet-cuerpo > * { animation: lupp-subir 0.5s var(--curva) both; }
+.sheet-cuerpo > *:nth-child(2) { animation-delay: 0.05s; }
+.sheet-cuerpo > *:nth-child(3) { animation-delay: 0.10s; }
+.sheet-cuerpo > *:nth-child(4) { animation-delay: 0.15s; }
+.sheet-cuerpo > *:nth-child(n+5) { animation-delay: 0.20s; }
+
+/* ---------- Gráfico: las barras crecen ---------- */
+.gb-svg rect {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: lupp-crecer 0.9s var(--curva) both;
+}
+.gb-svg rect:nth-of-type(n+3)  { animation-delay: 0.04s; }
+.gb-svg rect:nth-of-type(n+5)  { animation-delay: 0.08s; }
+.gb-svg rect:nth-of-type(n+7)  { animation-delay: 0.12s; }
+.gb-svg rect:nth-of-type(n+9)  { animation-delay: 0.16s; }
+.gb-svg rect:nth-of-type(n+11) { animation-delay: 0.20s; }
+.gb-svg rect:nth-of-type(n+13) { animation-delay: 0.24s; }
+@keyframes lupp-crecer {
+  from { scale: 1 0; }
+  to   { scale: 1 1; }
+}
+.gb-tab { transition: background-color 0.3s, border-color 0.3s, color 0.3s, scale 0.18s; }
+
+/* ---------- Elegir banco (cuadrícula) ---------- */
+.bancos-sel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+@media (min-width: 420px) {
+  .bancos-sel { grid-template-columns: repeat(5, 1fr); }
+}
+.bancos-sel label { position: relative; }
+.bancos-sel input { position: absolute; opacity: 0; pointer-events: none; }
+.bancos-sel label > span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 2px 8px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.25s, border-color 0.25s, scale 0.25s var(--curva-rebote);
+}
+.bancos-sel small { font-size: 10px; line-height: 1.2; opacity: 0.75; }
+.bancos-sel input:checked + span {
+  border-color: var(--oro);
+  background: rgba(212, 175, 55, 0.10);
+  scale: 1.04;
+}
+.bancos-sel input:checked + span small { opacity: 1; }
+.bancos-sel input:focus-visible + span { outline: 2px solid var(--oro); outline-offset: 2px; }
+
+/* ---------- Detalle de cuenta ---------- */
+.cuenta-detalle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 18px;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--c, #555) 30%, transparent), transparent 70%);
+  border: 1px solid color-mix(in srgb, var(--c, #555) 35%, transparent);
+}
+.cuenta-detalle .etq { display: block; font-size: 12px; opacity: 0.75; }
+.cuenta-detalle b { display: block; font-size: 30px; line-height: 1.15; }
+.cuenta-detalle b.oro { color: var(--oro); }
+
+.acciones-cuenta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.acciones-cuenta button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 4px;
+  border-radius: 14px;
+  border: 1px solid rgba(127, 127, 127, 0.22);
+  background: rgba(127, 127, 127, 0.06);
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.acciones-cuenta i { font-size: 22px; }
+@media (hover: hover) {
+  .acciones-cuenta button:hover { background: rgba(127, 127, 127, 0.12); }
+}
+
+/* ---------- Celebración al guardar (estilo Duolingo) ---------- */
+.celebra {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(60% 45% at 50% 34%, color-mix(in srgb, var(--cc) 30%, transparent), transparent 70%),
+    rgba(8, 8, 9, 0.93);
+  color: #fff;
+  text-align: center;
+  overflow: hidden;
+  animation: lupp-fundido 0.3s ease both;
+}
+[data-tema="claro"] .celebra {
+  background:
+    radial-gradient(60% 45% at 50% 34%, color-mix(in srgb, var(--cc) 22%, transparent), transparent 70%),
+    rgba(247, 244, 238, 0.96);
+  color: #1d1d1b;
+}
+.celebra.sale { animation: lupp-fundido-sale 0.38s ease both; }
+.celebra.sale .celebra-contenido,
+.celebra.sale .celebra-boton { animation: lupp-sale-abajo 0.38s ease both; }
+@keyframes lupp-sale-abajo { to { opacity: 0; translate: 0 24px; scale: 0.97; } }
+
+.celebra-confeti {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+.celebra-contenido {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 380px;
+}
+
+/* Medalla que cae y rebota */
+.celebra-medalla {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  margin-bottom: 26px;
+  display: grid;
+  place-items: center;
+}
+.celebra-rayos {
+  position: absolute;
+  inset: -70px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    color-mix(in srgb, var(--cc) 40%, transparent) 0deg 9deg,
+    transparent 9deg 22.5deg);
+  -webkit-mask: radial-gradient(circle, #000 18%, transparent 68%);
+  mask: radial-gradient(circle, #000 18%, transparent 68%);
+  opacity: 0;
+  animation:
+    lupp-rayos-aparecen 0.6s ease 0.35s forwards,
+    lupp-rayos-giran 14s linear infinite;
+}
+@keyframes lupp-rayos-aparecen { to { opacity: 0.55; } }
+@keyframes lupp-rayos-giran { to { rotate: 360deg; } }
+
+.celebra-circulo {
+  position: relative;
+  width: 116px;
+  height: 116px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 56px;
+  color: #fff;
+  background: radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--cc) 55%, #fff), var(--cc) 55%, var(--cc-oscuro));
+  box-shadow:
+    inset 0 -8px 0 rgba(0, 0, 0, 0.18),
+    inset 0 6px 12px rgba(255, 255, 255, 0.35),
+    0 0 0 6px color-mix(in srgb, var(--cc) 25%, transparent),
+    0 18px 40px -8px color-mix(in srgb, var(--cc) 70%, transparent);
+  transform-origin: 50% 100%;
+  animation:
+    lupp-medalla-cae 0.9s cubic-bezier(0.3, 0, 0.3, 1) both,
+    lupp-flota 2.6s ease-in-out 1.1s infinite;
+}
+.celebra-circulo i { filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.2)); }
+/* Caída con "aplastón" y estirón, como en los juegos */
+@keyframes lupp-medalla-cae {
+  0%   { translate: 0 -140px; scale: 0.6 1.25; opacity: 0; }
+  35%  { translate: 0 0;      scale: 1.25 0.75; opacity: 1; }
+  52%  { translate: 0 -26px;  scale: 0.9 1.12; }
+  68%  { translate: 0 0;      scale: 1.08 0.93; }
+  82%  { translate: 0 -6px;   scale: 0.98 1.03; }
+  100% { translate: 0 0;      scale: 1 1; }
+}
+@keyframes lupp-flota {
+  0%, 100% { translate: 0 0; rotate: 0deg; }
+  50%      { translate: 0 -8px; rotate: -3deg; }
+}
+.celebra-sombra {
+  position: absolute;
+  bottom: -14px;
+  width: 80px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  filter: blur(4px);
+  animation: lupp-sombra 2.6s ease-in-out 1.1s infinite;
+}
+@keyframes lupp-sombra {
+  0%, 100% { scale: 1; opacity: 0.8; }
+  50%      { scale: 0.8; opacity: 0.5; }
+}
+
+/* "¡Listo!" letra por letra, saltando */
+.celebra-titulo {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  color: var(--cc);
+  text-shadow: 0 4px 0 color-mix(in srgb, var(--cc-oscuro) 60%, transparent);
+}
+.celebra-titulo span {
+  display: inline-block;
+  animation: lupp-letra 0.6s cubic-bezier(0.34, 1.8, 0.64, 1) both;
+  animation-delay: calc(0.45s + var(--i) * 0.05s);
+}
+@keyframes lupp-letra {
+  0%   { opacity: 0; translate: 0 26px; scale: 0.4; rotate: -12deg; }
+  100% { opacity: 1; translate: 0 0;    scale: 1;   rotate: 0deg; }
+}
+
+.celebra-frase {
+  margin: 14px 0 2px;
+  font-size: 17px;
+  opacity: 0.8;
+  animation: lupp-subir 0.5s var(--curva) 0.7s both;
+}
+.celebra-monto {
+  font-size: 44px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  animation: lupp-subir 0.5s var(--curva) 0.75s both;
+}
+.celebra-monto.tic { animation: lupp-tic 0.45s cubic-bezier(0.34, 1.8, 0.64, 1); }
+@keyframes lupp-tic {
+  0%   { scale: 1; }
+  40%  { scale: 1.12; color: var(--cc); }
+  100% { scale: 1; }
+}
+.celebra-detalle {
+  margin: 8px 0 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  background: color-mix(in srgb, var(--cc) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cc) 35%, transparent);
+  animation: lupp-subir 0.5s var(--curva) 0.85s both;
+}
+
+/* Tarjetitas de resultado (como las de fin de lección) */
+.celebra-datos {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: 22px;
+}
+.celebra-dato {
+  flex: 1;
+  padding: 12px 10px;
+  border-radius: 16px;
+  border: 2px solid color-mix(in srgb, var(--cc) 45%, transparent);
+  background: color-mix(in srgb, var(--cc) 8%, transparent);
+  animation: lupp-dato 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: calc(1.05s + var(--i) * 0.12s);
+}
+.celebra-dato small { display: block; font-size: 11px; opacity: 0.75; margin-bottom: 4px; }
+.celebra-dato b { font-size: 17px; font-variant-numeric: tabular-nums; }
+.celebra-dato b.rojo { color: #EF4444; }
+@keyframes lupp-dato {
+  from { opacity: 0; translate: 0 20px; scale: 0.85; }
+  to   { opacity: 1; translate: 0 0;    scale: 1; }
+}
+
+/* Botón grande "Continuar" con efecto 3D */
+.celebra-boton {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  max-width: 380px;
+  margin-top: 34px;
+  padding: 16px;
+  border: 0;
+  border-radius: 16px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--cc);
+  box-shadow: 0 5px 0 var(--cc-oscuro);
+  cursor: pointer;
+  animation: lupp-subir 0.5s var(--curva) 1.3s both;
+  transition: translate 0.08s, box-shadow 0.08s !important;
+}
+.celebra-boton:active { translate: 0 5px; box-shadow: 0 0 0 var(--cc-oscuro); scale: 1 !important; }
+.celebra-boton:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.celebra-ajuste .celebra-boton,
+.celebra-ok .celebra-boton { color: #1d1d1b; }
+
+/* ---------- Interruptor de sonido (Ajustes) ---------- */
+.seg-sonido { margin-bottom: 4px; }
+
+/* ---------- Barras de progreso (se llenan desde donde estaban) ---------- */
+.barra-prog {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(127, 127, 127, 0.18);
+  overflow: hidden;
+}
+.barra-prog i {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #EF4444, #F87171);
+  transform-origin: 0 50%;
+  scale: var(--p) 1;
+  animation: lupp-llenar 1.1s var(--curva) 0.15s both;
+}
+.barra-prog i::after {             /* brillo que recorre la barra */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  translate: -100% 0;
+  animation: lupp-barra-brillo 2.8s ease-in-out 1.3s infinite;
+}
+@keyframes lupp-llenar { from { scale: var(--p0) 1; } to { scale: var(--p) 1; } }
+@keyframes lupp-barra-brillo { 0% { translate: -100% 0; } 45%, 100% { translate: 100% 0; } }
+.barra-prog.tono-bien i { background: linear-gradient(90deg, #16A34A, #4ADE80); }
+.barra-prog.tono-ojo i  { background: linear-gradient(90deg, #B8901F, #F3D77A); }
+.barra-prog.tono-mal i  { background: linear-gradient(90deg, #DC2626, #F87171); }
+.tono-bien { color: var(--verde-v); }
+.tono-ojo  { color: var(--oro); }
+.tono-mal  { color: var(--rojo-v); }
+
+/* ---------- Coach de plata ---------- */
+.card.coach {
+  --animo: var(--oro);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--animo) 40%, transparent);
+  background-image: radial-gradient(130% 120% at 0% 0%, color-mix(in srgb, var(--animo) 16%, transparent), transparent 60%);
+  box-shadow: 0 18px 40px -22px color-mix(in srgb, var(--animo) 60%, transparent);
+}
+.card.coach.animo-bien { --animo: #22C55E; }
+.card.coach.animo-ojo  { --animo: #D4AF37; }
+.card.coach.animo-mal  { --animo: #EF4444; }
+.card.coach::after {               /* brillo que pasa de vez en cuando */
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, color-mix(in srgb, var(--animo) 14%, transparent) 50%, transparent 65%);
+  translate: -110% 0;
+  animation: lupp-brillo-pasa 8s ease-in-out 1.5s infinite;
+}
+.coach-cab { display: flex; align-items: center; gap: 10px; }
+.coach-icono {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  color: var(--animo);
+  background: color-mix(in srgb, var(--animo) 16%, transparent);
+  animation: lupp-meneo 3.6s ease-in-out infinite;
+}
+@keyframes lupp-meneo {
+  0%, 70%, 100% { rotate: 0deg; scale: 1; }
+  76% { rotate: -12deg; scale: 1.08; }
+  82% { rotate: 10deg; }
+  88% { rotate: -6deg; }
+  94% { rotate: 3deg; }
+}
+.coach-nombre { flex: 1; font-size: 12px; letter-spacing: 0.4px; text-transform: uppercase; opacity: 0.7; }
+.coach-otra {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  background: transparent;
+  color: inherit;
+  font-size: 17px;
+  cursor: pointer;
+}
+.coach-otra:active i { rotate: 180deg; }
+.coach-otra i { display: inline-block; transition: rotate 0.4s var(--curva); }
+.coach-frase {
+  margin: 12px 0 8px;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.coach-frase.nueva { animation: lupp-frase 0.6s var(--curva-rebote) both; }
+@keyframes lupp-frase {
+  from { opacity: 0; translate: 0 10px; scale: 0.97; filter: blur(4px); }
+  to   { opacity: 1; translate: 0 0; scale: 1; filter: blur(0); }
+}
+.coach-consejo {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  opacity: 0.85;
+}
+.coach-consejo i { color: var(--oro); font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+.coach-uso { margin-top: 14px; }
+.coach-uso .fila-sb { display: flex; justify-content: space-between; margin-bottom: 6px; opacity: 0.85; }
+.coach-pie {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(127, 127, 127, 0.18);
+  font-size: 13px;
+}
+.coach-pie span { opacity: 0.75; }
+.coach-pie b {
+  font-size: 22px;
+  color: var(--oro);
+  text-shadow: 0 0 18px rgba(212, 175, 55, 0.35);
+}
+.coach-pie b.rojo { color: var(--rojo-v); text-shadow: none; }
+[data-tema="claro"] .coach-pie b { color: #8C6D1F; text-shadow: none; }
+
+/* ---------- Deudas ---------- */
+.deudas-lista { display: grid; gap: 10px; }
+.card.deuda {
+  display: block;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 0.6s ease, border-color 0.6s ease, translate 0.35s var(--curva), box-shadow 0.35s var(--curva);
+}
+.card.deuda.pendiente {
+  border-color: rgba(239, 68, 68, 0.35);
+  background-image: linear-gradient(140deg, rgba(239, 68, 68, 0.16), rgba(239, 68, 68, 0.04) 70%);
+}
+.card.deuda.saldada {
+  border-color: rgba(34, 197, 94, 0.45);
+  background-image: linear-gradient(140deg, rgba(34, 197, 94, 0.22), rgba(34, 197, 94, 0.05) 70%);
+}
+.card.deuda.saldada .barra-prog i { background: linear-gradient(90deg, #16A34A, #4ADE80); }
+.card.deuda.pendiente .barra-prog i { background: linear-gradient(90deg, #DC2626, #F87171); }
+.deuda-cab { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.deuda-txt { flex: 1; min-width: 0; }
+.deuda-txt b { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.deuda-txt small { opacity: 0.75; }
+.deuda-pct { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.card.deuda.pendiente .deuda-pct { color: #F87171; }
+.card.deuda.saldada .deuda-pct { color: var(--verde-v); font-size: 26px; animation: lupp-salto 0.6s var(--curva-rebote); }
+.deuda-pie { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; opacity: 0.75; }
+@media (hover: hover) {
+  .card.deuda:hover { translate: 0 -3px; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35); }
+}
+.pantalla.entrar .deudas-lista > * { animation: lupp-subir 0.6s var(--curva) both; }
+.pantalla.entrar .deudas-lista > *:nth-child(2) { animation-delay: 0.06s; }
+.pantalla.entrar .deudas-lista > *:nth-child(3) { animation-delay: 0.12s; }
+.pantalla.entrar .deudas-lista > *:nth-child(n+4) { animation-delay: 0.18s; }
+
+.vacio-boton {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px dashed rgba(127, 127, 127, 0.35);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.vacio-boton i { font-size: 20px; color: var(--oro); }
+
+/* Detalle de una deuda */
+.deuda-detalle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 20px 16px 16px;
+  margin-bottom: 12px;
+  border-radius: 20px;
+  transition: background-color 0.6s;
+}
+.deuda-detalle.pendiente {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: linear-gradient(160deg, rgba(239, 68, 68, 0.22), rgba(239, 68, 68, 0.04) 75%);
+}
+.deuda-detalle.saldada {
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  background: linear-gradient(160deg, rgba(34, 197, 94, 0.28), rgba(34, 197, 94, 0.05) 75%);
+}
+.deuda-detalle.pendiente .barra-prog i { background: linear-gradient(90deg, #DC2626, #F87171); }
+.deuda-detalle.saldada .barra-prog i { background: linear-gradient(90deg, #16A34A, #4ADE80); }
+.deuda-detalle .avatar { margin-bottom: 4px; animation: lupp-medalla-cae 0.8s cubic-bezier(0.3, 0, 0.3, 1) both; }
+.deuda-total { font-size: 30px; line-height: 1.1; }
+.deuda-barra-grande { width: 100%; margin-top: 10px; }
+.deuda-barra-grande .barra-prog { height: 14px; }
+.deuda-barra-grande .fila-sb { display: flex; justify-content: space-between; margin-top: 6px; }
+.sello-saldada {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--verde-v);
+  animation: lupp-dato 0.6s var(--curva-rebote) 0.3s both;
+}
+.acciones-cuenta.dos { grid-template-columns: repeat(2, 1fr); }
+.fila.abono .icon-btn { background: none; border: 0; color: inherit; opacity: 0.6; font-size: 16px; cursor: pointer; }
+
+/* Mostrar textos según "Me deben" / "Yo debo" */
+form[data-clase="me_deben"] .si-debo,
+form[data-clase="debo"] .si-me-deben { display: none !important; }
+
+/* ---------- Avatar (foto o iniciales) ---------- */
+.avatar {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--t, 44px);
+  height: var(--t, 44px);
+  border-radius: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+  color: #fff;
+  font-size: calc(var(--t, 44px) * 0.36);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--c) 70%, #fff), var(--c));
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Logo propio en las cuentas */
+.logo-banco.con-foto { background: #fff; }
+.logo-banco img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- Selector de foto ---------- */
+.foto-picker { display: flex; align-items: center; gap: 14px; margin: 8px 0 4px; }
+.foto-circulo { position: relative; cursor: pointer; flex-shrink: 0; }
+.foto-vista {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  font-size: 28px;
+  color: var(--oro);
+  border: 2px dashed rgba(212, 175, 55, 0.5);
+  background: rgba(212, 175, 55, 0.06);
+  transition: scale 0.3s var(--curva-rebote), border-color 0.3s;
+}
+.foto-vista:has(img) { border-style: solid; border-color: var(--oro); }
+.foto-vista img { width: 100%; height: 100%; object-fit: cover; }
+.foto-vista.nueva { animation: lupp-foto-nueva 0.6s var(--curva-rebote); }
+@keyframes lupp-foto-nueva {
+  0%   { scale: 0.6; rotate: -10deg; }
+  100% { scale: 1; rotate: 0deg; }
+}
+.foto-circulo:active .foto-vista { scale: 0.92; }
+.foto-lapiz {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  color: #1d1d1b;
+  background: var(--oro);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.foto-texto b { display: block; font-size: 14px; }
+.foto-texto small { display: block; font-size: 12px; opacity: 0.7; margin-bottom: 4px; }
+
+.chip-oro { border-color: var(--oro) !important; color: var(--oro) !important; }
+
+/* ---------- Si el celular pide menos movimiento, se respeta ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+  }
+  .celebra-rayos { opacity: 0.4; }
+}
+
+/* ---------- Gráfico sin datos ---------- */
+.gb-zona { position: relative; }
+.gb-vacio {
+  position: absolute;
+  inset: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 16px;
+  text-align: center;
+  animation: lupp-subir 0.6s var(--curva) 0.2s both;
+}
+.gb-vacio i { font-size: 34px; color: var(--oro); opacity: 0.8; animation: lupp-flota 3s ease-in-out infinite; }
+.gb-vacio b { font-size: 14px; }
+.gb-vacio small { font-size: 12px; opacity: 0.7; line-height: 1.5; }
+
+/* ---------- Inicio de sesión ---------- */
+.login {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px 16px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+.login-marca { position: relative; text-align: center; animation: lupp-subir 0.7s var(--curva) both; }
+.login-marca .logo.grande { position: relative; font-size: 52px; letter-spacing: 10px; margin: 0; color: var(--oro); }
+.login-marca .sub { margin: 6px 0 0; opacity: 0.75; }
+.login-anillo {
+  position: absolute;
+  left: 50%;
+  top: 36px;
+  width: 190px;
+  height: 190px;
+  margin: -95px 0 0 -95px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 30, 45, 0.45), transparent 65%);
+  animation: lupp-respira-anillo 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes lupp-respira-anillo {
+  0%, 100% { scale: 0.9; opacity: 0.7; }
+  50%      { scale: 1.1; opacity: 1; }
+}
+.login-caja {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: 0 24px 60px -24px rgba(139, 30, 45, 0.6);
+  animation: lupp-subir 0.7s var(--curva) 0.12s both;
+}
+.login-caja h2 { margin: 0 0 6px; font-size: 20px; }
+.login-caja input { width: 100%; box-sizing: border-box; }
+.login > .link { animation: lupp-subir 0.7s var(--curva) 0.24s both; }
+.clave-caja { position: relative; display: block; }
+.clave-caja input { padding-right: 44px; }
+.ver-clave {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  translate: 0 -50%;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: none;
+  color: inherit;
+  opacity: 0.7;
+  font-size: 18px;
+  cursor: pointer;
+}
+.ver-clave:active { scale: 1 !important; translate: 0 -50%; }
+
+/* ---------- Subir datos ---------- */
+.subir-caja { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; margin-bottom: 8px; }
+.subir-icono {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  color: var(--oro);
+  background: rgba(212, 175, 55, 0.12);
+  animation: lupp-flota 2.6s ease-in-out infinite;
+}
